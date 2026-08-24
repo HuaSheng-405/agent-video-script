@@ -1,7 +1,7 @@
-# 视频脚本 Agent 生产线（agent-video-script）
+# 视频脚本 Agent 助手（agent-video-script）
 
-> 从 0 到 1：把「主题 → 60 秒视频口播脚本」自动化的多 Agent 生产线。
-> 部署形态：LangGraph 多 Agent 流水线 + MCP 工具协议 + 两层质检，素材检索复用 rag-video-script 检索层。
+> 从 0 到 1：把「主题 → 60 秒视频口播脚本」自动化的多 Agent 流水线产品。
+> 架构：LangGraph 多 Agent 流水线 + MCP 工具协议 + 两层质检，素材检索复用 rag-video-script 检索层。
 
 ## 架构
 
