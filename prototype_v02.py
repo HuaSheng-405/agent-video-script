@@ -1,7 +1,6 @@
 # prototype_v02.py —— 视频脚本 Agent 生产线 v0.2（主项目验证性原型）
 # 结构：策划(带检索工具) → 编剧(子图: 大纲→初稿→润色) → 质检(规则层+LLM打分层) → FAIL 回退(≤2次)
 # 素材检索：MCP 调用 rag-video-script/material_server.py（跨环境，检索进程 = llm env）
-# 跑法：python prototype_v02.py
 import asyncio, os, re
 try:
     from dotenv import load_dotenv; load_dotenv()
@@ -53,7 +52,6 @@ def build_writer_subgraph():
 
 def rule_check(text: str):
     import re
-    # ① 先去掉格式标记（时间轴/标题/emoji），只数【口播词】——60 秒 ≈ 220~260 字口播词
     spoken = re.sub(r"【[^】]*】|（[^）]*）|[#*>\-|=]|\d+-\d+秒|[\U0001F300-\U0001FAFF]", "", text)
     n = len(spoken)
     issues = []
@@ -124,7 +122,7 @@ async def main():
             print(f">>> 回退重写（第 {state['retry_count']} 次）")
             return "write"
         if not passed:
-            print(">>> 重试超限，强制放行（防死循环）")
+            print(">>> 重试超限，强制放行")
         return END
 
     g = StateGraph(State)
