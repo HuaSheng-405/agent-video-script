@@ -12,6 +12,7 @@ from langchain.agents import create_agent
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_mcp_adapters.client import MultiServerMCPClient
+from structured_spec import generate_spec, validate_spec
 
 # 运行时按机器调整
 LLM_ENV_PY = r"E:/Anaconda/envs/llm/python.exe"
@@ -70,16 +71,21 @@ class State(TypedDict):
     topic: str
     plan: str
     script: str
+    spec: dict          # v1.0：成片规格（结构化输出）
+    spec_error: str     # v1.0：规格生成失败的错误记录（None=成功）
     qc_report: str
     retry_count: int
     messages: Annotated[list, add_messages]
 
-async def main():
-    mcp_client = MultiServerMCPClient({
-        "material": {"command": LLM_ENV_PY, "args": [MATERIAL_SERVER], "transport": "stdio"},
-    })
-    material_tools = await mcp_client.get_tools()
-    print("检索工具已接入:", [t.name for t in material_tools])
+async def run_topic(topic: str, material_tools: list | None = None) -> dict:
+    """跑一个主题，返回最终状态（评估体系复用此函数）
+    material_tools 传入已加载的工具时复用（同一 MCP 连接/同一索引），否则自建"""
+    if material_tools is None:
+        mcp_client = MultiServerMCPClient({
+            "material": {"command": LLM_ENV_PY, "args": [MATERIAL_SERVER], "transport": "stdio"},
+        })
+        material_tools = await mcp_client.get_tools()
+        print("检索工具已接入:", [t.name for t in material_tools])
 
     planner = create_agent(
         llm, tools=material_tools,
@@ -112,6 +118,20 @@ async def main():
             retry += 1
         return {"qc_report": report, "retry_count": retry}
 
+    def spec_node(state: State) -> dict:
+        """v1.0 组件一：脚本文本 → 结构化成片规格（校验失败自动重试 ≤3）
+        增强：3 次仍失败 → 降级为 spec=None（记录错误，不中断整条流水线）"""
+        try:
+            spec = generate_spec(llm, state["script"])
+        except Exception as e:
+            print(f"⚠ 成片规格生成失败（降级为 None）：{e}")
+            return {"spec": None, "spec_error": str(e)}
+        issues = validate_spec(spec)
+        print("\n===== 成片规格（ScriptSpec）=====")
+        print(spec.model_dump_json(indent=2))
+        print("规格业务校验:", issues if issues else "✅ 通过")
+        return {"spec": spec.model_dump(), "spec_error": None}
+
     def route_after_qc(state: State) -> str:
         lines = state["qc_report"].split("\n")
         rule_ok = "✅ 通过" in lines[0]
@@ -122,16 +142,19 @@ async def main():
             print(f">>> 回退重写（第 {state['retry_count']} 次）")
             return "write"
         if not passed:
-            print(">>> 重试超限，强制放行")
-        return END
+            print(">>> 重试超限，强制放行（仍转成片规格）")
+        return "spec"   # 通过或强制放行 → 都生成成片规格
 
     g = StateGraph(State)
     g.add_node("plan", plan_node)
     g.add_node("write", write_node)
     g.add_node("qc", qc_node)
+    g.add_node("spec", spec_node)
     g.add_edge(START, "plan"); g.add_edge("plan", "write"); g.add_edge("write", "qc")
-    g.add_conditional_edges("qc", route_after_qc, {"write": "write", END: END})
+    g.add_conditional_edges("qc", route_after_qc, {"write": "write", "spec": "spec"})
+    g.add_edge("spec", END)
     team = g.compile()
-    await team.ainvoke({"topic": "给大学生讲清楚什么是RAG", "retry_count": 0})
+    return await team.ainvoke({"topic": topic, "retry_count": 0})
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(run_topic("给大学生讲清楚什么是RAG"))

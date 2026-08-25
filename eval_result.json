@@ -1,0 +1,48 @@
+{
+  "topics": [
+    {
+      "topic": "给大学生讲清楚什么是RAG",
+      "retries": 1,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 295.6
+    },
+    {
+      "topic": "健身新人第一周怎么练",
+      "retries": 1,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 695.5
+    },
+    {
+      "topic": "晚上睡不着怎么办",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 215.7
+    },
+    {
+      "topic": "北京胡同美食盘点",
+      "retries": 1,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 178.4
+    },
+    {
+      "topic": "大一新生报到避坑指南",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 256.1
+    }
+  ],
+  "summary": {
+    "n": 5,
+    "first_pass_rate": 0.4,
+    "avg_retries": 0.6,
+    "spec_rate": 1.0,
+    "spec_valid_rate": 1.0,
+    "avg_duration_s": 328.3,
+    "crashed": 0
+  }
+}
