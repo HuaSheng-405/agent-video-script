@@ -35,7 +35,8 @@ def outline_node(s: ScriptState) -> dict:
 
 def draft_node(s: ScriptState) -> dict:
     return {"draft": llm.invoke(
-        f"根据大纲写 60 秒口播初稿（开头 3 秒钩子，结尾 CTA）：\n{s['outline']}").content}
+        f"根据大纲写 60 秒口播初稿（开头 3 秒钩子，结尾 CTA。"
+        f"口播词 250 字左右，宁少勿多，删掉所有铺垫性重复）\n{s['outline']}").content}
 
 def polish_node(s: ScriptState) -> dict:
     r = llm.invoke([("system", "你是润色师，把初稿改得更口语化、更紧凑，保留钩子和 CTA。"),
@@ -73,6 +74,7 @@ class State(TypedDict):
     script: str
     spec: dict          # v1.0：成片规格（结构化输出）
     spec_error: str     # v1.0：规格生成失败的错误记录（None=成功）
+    first_fail_reason: str   # 首次质检失败原因（评估用；只记录第一条）
     qc_report: str
     retry_count: int
     messages: Annotated[list, add_messages]
@@ -114,8 +116,13 @@ async def run_topic(topic: str, material_tools: list | None = None) -> dict:
         report = f"规则层：{'✅ 通过' if ok else '❌ ' + '；'.join(issues)}\nLLM 钩子评分：{score}/5"
         print("\n===== 质检报告 =====\n" + report)
         retry = state.get("retry_count", 0)
-        if (not ok) or score < 3:
+        if not (ok and score >= 3):
             retry += 1
+            # 评估用：只记录【首次】失败原因（后续重试的最终报告会覆盖 qc_report）
+            if not state.get("first_fail_reason"):
+                reason = "；".join(issues) if issues else f"钩子评分 {score}/5"
+                return {"qc_report": report, "retry_count": retry,
+                        "first_fail_reason": f"❌ {reason}"}
         return {"qc_report": report, "retry_count": retry}
 
     def spec_node(state: State) -> dict:

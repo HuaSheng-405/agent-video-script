@@ -2,47 +2,172 @@
   "topics": [
     {
       "topic": "给大学生讲清楚什么是RAG",
-      "retries": 1,
+      "retries": 0,
       "spec": true,
       "spec_valid": true,
-      "duration": 295.6
+      "duration": 107.7,
+      "first_fail_reason": ""
     },
     {
       "topic": "健身新人第一周怎么练",
-      "retries": 1,
+      "retries": 0,
       "spec": true,
       "spec_valid": true,
-      "duration": 695.5
+      "duration": 72.7,
+      "first_fail_reason": ""
     },
     {
       "topic": "晚上睡不着怎么办",
       "retries": 0,
       "spec": true,
       "spec_valid": true,
-      "duration": 215.7
+      "duration": 72.7,
+      "first_fail_reason": ""
     },
     {
       "topic": "北京胡同美食盘点",
-      "retries": 1,
+      "retries": 0,
       "spec": true,
       "spec_valid": true,
-      "duration": 178.4
+      "duration": 106.1,
+      "first_fail_reason": ""
     },
     {
       "topic": "大一新生报到避坑指南",
       "retries": 0,
       "spec": true,
       "spec_valid": true,
-      "duration": 256.1
+      "duration": 196.7,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "什么是深度学习",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 137.0,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "期末复习怎么安排",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 119.1,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "手机拍照入门技巧",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 182.5,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "学生党怎么选蓝牙耳机",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 123.5,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "考研英语单词怎么背",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 128.6,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "宿舍改造低成本方案",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 124.4,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "编程第一课学什么语言",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 128.1,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "穷游省钱攻略",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 119.5,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "和室友发生矛盾怎么办",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 180.1,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "如何写出高分论文",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 126.7,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "时间管理四象限",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 187.4,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "久坐颈椎疼怎么缓解",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 180.4,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "要不要转专业",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 187.2,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "为什么总是熬夜",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 139.2,
+      "first_fail_reason": ""
+    },
+    {
+      "topic": "暑期实习简历怎么写",
+      "retries": 0,
+      "spec": true,
+      "spec_valid": true,
+      "duration": 129.5,
+      "first_fail_reason": ""
     }
   ],
   "summary": {
-    "n": 5,
-    "first_pass_rate": 0.4,
-    "avg_retries": 0.6,
+    "n": 20,
+    "first_pass_rate": 1.0,
+    "avg_retries": 0.0,
     "spec_rate": 1.0,
     "spec_valid_rate": 1.0,
-    "avg_duration_s": 328.3,
+    "avg_duration_s": 137.5,
     "crashed": 0
   }
 }
