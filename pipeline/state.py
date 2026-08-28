@@ -23,6 +23,8 @@ class PipelineState(TypedDict):
     storyboard_issues: list      # 分镜校验问题（汇入质检决策，v1.1 分层回退）
     # 素材阶段（v1.1 新增）
     material_hits: dict          # {素材需求: 检索命中摘要}
+    # 视觉素材阶段（v1.2.1 新增，独立节点）
+    video_candidates: dict       # {镜号: [VideoCandidate]}（Pexels 候选，供 UI 选择/本地合成）
     # 规格阶段
     spec: dict                   # ScriptSpec（成片规格）
     spec_error: str              # 规格生成失败记录（None=成功）

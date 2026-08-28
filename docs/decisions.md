@@ -39,7 +39,19 @@
 - **回滚协议（v4）**：三层回滚——产物层（State 版本历史队列：script/spec/requirements 快照一起存）、状态层（checkpoint 原生回放，get_state_history 恢复到指定检查点）、语义层（版本树：回滚是分叉不删除，based_on 标注）。关键联动：回滚产物必须同步回滚约束快照（三类记忆一起动）；输出带版本标识（v3 based_on v1），用户才能指认回滚目标
 **核心原则**：压缩是兜底，分类治理才是主解——约束累积、产物可替换、对话可压缩；**冲突确认优先于自动覆盖**。
 
-## 踩坑记录（每坑一条工程铁律）
+## 2026-08-28 v1.2.1 补充决策：视觉素材（Pexels）落地
+
+| # | 决策点 | 选择 | 理由 |
+|---|---|---|---|
+| 9 | 视觉检索源 | Pexels 视频 API（`/videos/search`） | 剪映 API 不对个人开放；Pexels 免费、无需审核、支持按query检索视频与时长/分辨率 |
+| 10 | 检索关键词语言 | **英文** | Pexels 资源以英文标签为主，中文 query 命中率极低（实测教训：中文搜不到） |
+| 11 | 视觉检索是否为独立节点 | **独立 media 节点**（`pipeline/agents_media.py` + `media_server.py`） | 文字检索（RAG 库）与视觉检索（Pexels）数据源根本不同，耦合在一个节点违背「换源只改一个模块」；拆开后两者可分别降级 |
+| 12 | 视觉候选排序 | 按镜头时长 **±50% 过滤**，再按「|候选时长-镜头时长|」升序 | 镜头长度是硬约束（每条 5~15s），先硬过滤再贴近排序，避免塞进一条 60s 长视频 |
+| 13 | 视觉检索调用形态 | `search_videos_batch(queries)` 一次会话批量检索 | 避免 N 镜头 = N 次跨进程 MCP 会话（v1.1 踩过：批检索把耗时 252s→... 的核心优化；单条子进程开销极大） |
+| 14 | 视频候选的消费方 | 本轮**不做 Web UI**，仅产出 `video_candidates`（供后续选择/本地合成） | 先把「生成候选」链路跑通，UI 属交互层，可后置；本地合成（FFmpeg+TTS）为 v1.2.2 终态 |
+
+**media 节点降级规则**：`media_tools=None` 时整节点 no-op（返回空 `video_candidates`），保证无 Pexels key / 无网络时文本模式照常跑，评估不受影响。
+
 
 1. **MCP server 日志必须走 stderr**：print 进 stdout 会污染 JSON-RPC 协议流（实测 UnicodeDecodeError）
 2. **含 MCP/网络工具的 Agent 整链必须 async**：StructuredTool 不支持同步调用（NotImplementedError）

@@ -8,6 +8,7 @@ class StoryboardShot(BaseModel):
     scene: str = Field(description="画面描述")
     narration: str = Field(description="该时段口播词")
     material_need: str = Field(description="本镜需参考的脚本片段/需核实的事实，如：美食探店开场白怎么写")
+    visual_keywords: list[str] = Field(default_factory=list, description="本镜视觉素材检索关键词（英文，2~3 个），如 ['AI chat interface','smartphone']")
 
 class StoryboardSchedule(BaseModel):
     shots: list[StoryboardShot] = Field(description="镜头表，3~8 个镜头")
@@ -53,8 +54,13 @@ def _invoke_structured(llm, model, prompt: str, max_attempts: int = 3):
 def generate_storyboard(llm, script_text: str) -> StoryboardSchedule:
     """脚本 → 镜头表（分镜 Agent 使用）"""
     return _invoke_structured(llm, StoryboardSchedule,
-        f"将以下口播脚本拆分为镜头表（每镜头：镜号/时间段/画面描述/口播词/素材需求）。"
-        f"【硬约束】严格 3~8 个镜头，60 秒视频每个镜头 5~15 秒。\n{script_text}")
+        f"将以下口播脚本拆分为镜头表（每镜头：镜号/时间段/画面描述/口播词/素材需求/视觉关键词）。"
+        f"【硬约束】严格 3~8 个镜头，60 秒视频每个镜头 5~15 秒。"
+        f"【material_need 定义】必须写成『需参考哪类脚本片段/需核实哪个事实』，例如『关于AI幻觉的脚本写法』"
+        f"『开卷考试类比的脚本参考』——不要写成画面素材需求（如截图/动效），因为素材库是文字脚本。"
+        f"【visual_keywords 定义】本镜面画对应的英文视觉检索关键词 2~3 个（用于 Pexels 视频检索），"
+        f"例如美食探店镜头 → ['food vlog','restaurant','cooking'];数字人出镜镜头 → ['AI presenter','digital avatar']。"
+        f"只写能真正搜到视频的泛化词，不要写极具体/抽象词。\n{script_text}")
 
 class SpecMeta(BaseModel):
     """规格组装只需要 LLM 生成这四个文案字段（镜头表由分镜 Agent 提供，不重造）"""
@@ -79,6 +85,7 @@ def generate_spec(llm, script_text: str, storyboard_shots: list[dict], extra_con
             scene=s.get("scene", ""),
             narration=s.get("narration", ""),
             material_need=s.get("material_need", ""),
+            visual_keywords=s.get("visual_keywords", []),
         )
         shots.append(shot)
 

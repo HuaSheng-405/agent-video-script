@@ -50,7 +50,7 @@ async def main():
         try:
             # 屏蔽 run_topic 的详细打印，只需指标（评估要的是数据不是噪音）
             with contextlib.redirect_stdout(io.StringIO()):
-                st = await run_topic(t, material_tools=shared_tools)
+                st = await run_topic(t, material_tools=shared_tools, media_tools=[])
             retries = st.get("retry_count", 0)
             spec = st.get("spec")
             ok_generated = spec is not None

@@ -6,17 +6,20 @@ from pipeline.agents_planner import create_planner
 from pipeline.agents_writer import build_writer_subgraph
 from pipeline.agents_storyboard import create_storyboard_node
 from pipeline.agents_material import create_material_node
+from pipeline.agents_media import create_media_node
 from pipeline.agents_qc import create_qc_node
 from structured_spec import generate_spec, validate_spec
 
-def build_pipeline(llm, material_tools):
-    """五段式流水线：策划 → 编剧子图 → 分镜 → 素材 → 质检(回退) → 成片规格"""
+def build_pipeline(llm, material_tools, media_tools=None):
+    """五段式流水线：策划 → 编剧子图 → 分镜 → 素材(文本) → 素材(视频) → 质检(回退) → 成片规格
+    v1.2.1：media_tools 为 None 时跳过视频（纯文本模式，仍可跑）"""
 
     # ---- 各 Agent 实例化（工厂依赖注入） ----
     plan_node = create_planner(llm, material_tools)
     writer_sub = build_writer_subgraph(llm)
     storyboard_node = create_storyboard_node(llm)
     material_node = create_material_node(material_tools)
+    media_node = create_media_node(media_tools)
     qc_node = create_qc_node(llm)
 
     # ---- 组装节点（属于图的编排逻辑，不放 Agent 模块里） ----
@@ -64,13 +67,15 @@ def build_pipeline(llm, material_tools):
     g.add_node("write", write_node)
     g.add_node("storyboard", storyboard_node)
     g.add_node("material", material_node)
+    g.add_node("media", media_node)
     g.add_node("qc", qc_node)
     g.add_node("spec", spec_node)
     g.add_edge(START, "plan")
     g.add_edge("plan", "write")
     g.add_edge("write", "storyboard")
     g.add_edge("storyboard", "material")
-    g.add_edge("material", "qc")
+    g.add_edge("material", "media")
+    g.add_edge("media", "qc")
     g.add_conditional_edges("qc", route_after_qc, {"write": "write", "storyboard": "storyboard", "spec": "spec"})
     g.add_edge("spec", END)
     return g.compile()
